@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fb;
+            color: var(--dark);
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(67, 97, 238, 0.9), rgba(63, 55, 201, 0.9)), 
+                        url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            border-radius: 0 0 30px 30px;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--primary);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background-color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            background-color: #f0f4ff;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 60px;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .analysis-card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+        
+        .analysis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .skill-meter {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #e9ecef;
+            overflow: hidden;
+        }
+        
+        .skill-progress {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 30px;
+            color: var(--primary);
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .results-section {
+            display: none;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 40px 0;
+            margin-top: 80px;
+        }
+        
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--success) 0% var(--p), #e9ecef var(--p) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: white;
+        }
+        
+        .score-value {
+            position: relative;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-file-alt me-2"></i>
+                ResumeAnalyzer
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-4">AI-Powered Resume Analysis</h1>
+            <p class="lead mb-5">Upload your resume and get instant feedback on how to improve it for better job opportunities.</p>
+            <a href="#analyzer" class="btn btn-light btn-lg">Analyze Your Resume</a>
+        </div>
+    </section>
+
+    <!-- Resume Analyzer Section -->
+    <section id="analyzer" class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="text-center mb-5">
+                        <h2 class="fw-bold">Upload Your Resume</h2>
+                        <p class="text-muted">Supported formats: PDF, DOC, DOCX, TXT (Max 5MB)</p>
+                    </div>
+                    
+                    <div class="upload-area" id="dropArea">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <h4>Drag & Drop Your Resume</h4>
+                        <p class="text-muted">or click to browse files</p>
+                        <input type="file" id="resumeFile" class="d-none" accept=".pdf,.doc,.docx,.txt">
+                        <button class="btn btn-primary mt-3" onclick="document.getElementById('resumeFile').click()">
+                            Select File
+                        </button>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="compareJob">
+                            <label class="form-check-label" for="compareJob">
+                                Compare with a specific job description
+                            </label>
+                        </div>
+                        
+                        <div class="mt-3" id="jobDescriptionSection" style="display: none;">
+                            <label for="jobDescription" class="form-label">Paste Job Description</label>
+                            <textarea class="form-control" id="jobDescription" rows="4" placeholder="Paste the job description here..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button class="btn btn-primary btn-lg" id="analyzeBtn" onclick="analyzeResume()">
+                            Analyze Resume <i class="fas fa-chart-line ms-2"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3">Analyzing your resume... This may take a few moments.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section py-5 bg-light" id="resultsSection">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Analysis Results</h2>
+                <p class="text-muted">Here's how your resume measures up</p>
+            </div>
+            
+            <div class="row mb-5">
+                <div class="col-md-4 text-center">
+                    <div class="score-circle" style="--p: 75%">
+                        <div class="score-value">7.5/10</div>
+                    </div>
+                    <h4>Overall Score</h4>
+                    <p class="text-muted">Good, but there's room for improvement</p>
+                </div>
+                <div class="col-md-8">
+                    <div class="analysis-card card p-4">
+                        <h4 class="mb-3">Summary</h4>
+                        <p>Your resume has a solid structure with clear sections. The experience section is well-detailed, but there's room for improvement in quantifying achievements and tailoring content to specific job applications.</p>
+                        <div class="mt-3">
+                            <span class="badge bg-success me-2"><i class="fas fa-check me-1"></i> Good formatting</span>
+                            <span class="badge bg-success me-2"><i class="fas fa-check me-1"></i> Clear contact info</span>
+                            <span class="badge bg-warning me-2"><i class="fas fa-exclamation me-1"></i> Missing keywords</span>
+                            <span class="badge bg-warning me-2"><i class="fas fa-exclamation me-1"></i> Quantify achievements</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="analysis-card card p-4 h-100">
+                        <h4 class="mb-3">Skills Analysis</h4>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Technical Skills</span>
+                                <span>85%</span>
+                            </div>
+                            <div class="skill-meter">
+                                <div class="skill-progress" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Soft Skills</span>
+                                <span>70%</span>
+                            </div>
+                            <div class="skill-meter">
+                                <div class="skill-progress" style="width: 70%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Industry Keywords</span>
+                                <span>60%</span>
+                            </div>
+                            <div class="skill-meter">
+                                <div class="skill-progress" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="analysis-card card p-4 h-100">
+                        <h4 class="mb-3">Recommendations</h4>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Add more quantifiable achievements with numbers
+                            </li>
+                            <li class="list-group-item px-0">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Include more industry-specific keywords
+                            </li>
+                            <li class="list-group-item px-0">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Tailor your resume to match job descriptions
+                            </li>
+                            <li class="list-group-item px-0">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Consider adding a professional summary
+                            </li>
+                            <li class="list-group-item px-0">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                Proofread for grammar and spelling errors
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <button class="btn btn-primary" onclick="resetAnalyzer()">
+                    <i class="fas fa-redo me-2"></i> Analyze Another Resume
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Powerful Features</h2>
+                <p class="text-muted">Everything you need to optimize your resume</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h4>Keyword Analysis</h4>
+                        <p class="text-muted">Identify missing keywords that recruiters are looking for in your industry.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h4>ATS Compatibility</h4>
+                        <p class="text-muted">Check how well your resume performs with Applicant Tracking Systems.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <h4>Job Matching</h4>
+                        <p class="text-muted">Compare your resume with specific job descriptions for better targeting.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">How It Works</h2>
+                <p class="text-muted">Get your resume analyzed in three simple steps</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="text-center">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <span class="h3 mb-0">1</span>
+                        </div>
+                        <h4>Upload Resume</h4>
+                        <p class="text-muted">Upload your resume in PDF, DOC, DOCX, or TXT format.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="text-center">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <span class="h3 mb-0">2</span>
+                        </div>
+                        <h4>AI Analysis</h4>
+                        <p class="text-muted">Our AI analyzes your resume for content, formatting, and keywords.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="text-center">
+                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <span class="h3 mb-0">3</span>
+                        </div>
+                        <h4>Get Results</h4>
+                        <p class="text-muted">Receive detailed feedback and actionable recommendations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h2 class="fw-bold mb-4">Contact Us</h2>
+                    <p class="text-muted mb-4">Have questions or feedback? We'd love to hear from you.</p>
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-envelope text-primary"></i>
+                        </div>
+                        <div>
+                            <h5>Email</h5>
+                            <p class="text-muted">princek07194@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="d-flex mb-3">
+                        <div class="me-3">
+                            <i class="fas fa-phone text-primary"></i>
+                        </div>
+                        <div>
+                            <h5>Phone</h5>
+                            <p class="text-muted">7644820439</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <form>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center">
+            <p>&copy; 2023 ResumeAnalyzer. All rights reserved.</p>
+            <div class="mt-3">
+                <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white me-3"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // DOM elements
+        const dropArea = document.getElementById('dropArea');
+        const resumeFile = document.getElementById('resumeFile');
+        const compareJob = document.getElementById('compareJob');
+        const jobDescriptionSection = document.getElementById('jobDescriptionSection');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const resultsSection = document.getElementById('resultsSection');
+        
+        // Event listeners
+        compareJob.addEventListener('change', function() {
+            if (this.checked) {
+                jobDescriptionSection.style.display = 'block';
+            } else {
+                jobDescriptionSection.style.display = 'none';
+            }
+        });
+        
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('bg-light');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('bg-light');
+        }
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            resumeFile.files = files;
+            updateFileDisplay();
+        }
+        
+        resumeFile.addEventListener('change', updateFileDisplay);
+        
+        function updateFileDisplay() {
+            if (resumeFile.files.length > 0) {
+                const fileName = resumeFile.files[0].name;
+                dropArea.innerHTML = `
+                    <div class="upload-icon text-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>File Selected</h4>
+                    <p class="text-muted">${fileName}</p>
+                    <button class="btn btn-outline-primary mt-3" onclick="document.getElementById('resumeFile').click()">
+                        Change File
+                    </button>
+                `;
+            }
+        }
+        
+        // Analyze resume function
+        function analyzeResume() {
+            if (!resumeFile.files.length) {
+                alert('Please select a resume file first.');
+                return;
+            }
+            
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';
+            analyzeBtn.disabled = true;
+            
+            // Simulate analysis process (in a real app, this would be an API call)
+            setTimeout(() => {
+                loadingSpinner.style.display = 'none';
+                resultsSection.style.display = 'block';
+                
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }, 3000);
+        }
+        
+        // Reset analyzer function
+        function resetAnalyzer() {
+            resumeFile.value = '';
+            compareJob.checked = false;
+            jobDescriptionSection.style.display = 'none';
+            analyzeBtn.disabled = false;
+            
+            // Reset drop area
+            dropArea.innerHTML = `
+                <div class="upload-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h4>Drag & Drop Your Resume</h4>
+                <p class="text-muted">or click to browse files</p>
+                <button class="btn btn-primary mt-3" onclick="document.getElementById('resumeFile').click()">
+                    Select File
+                </button>
+            `;
+            
+            // Hide results
+            resultsSection.style.display = 'none';
+            
+            // Scroll back to analyzer
+            document.getElementById('analyzer').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
